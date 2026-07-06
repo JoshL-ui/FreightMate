@@ -429,6 +429,97 @@
             color: var(--text);
         }
 
+
+        .item-modal-card {
+            position: relative;
+            background: var(--primary-light);
+            margin: 50px auto;
+            border-radius: 16px;
+            max-width: 700px;
+            max-height: 80vh;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .item-modal-header {
+            position: sticky;
+            top: 0;
+            z-index: 5;
+            background: var(--primary-light);
+            border-bottom: 1px solid var(--border);
+            padding: 20px;
+        }
+
+        .item-modal-title-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .item-modal-title-row h2 {
+            margin: 0;
+        }
+
+        .item-close-btn {
+            width: 40px;
+            height: 40px;
+            padding: 0;
+            border-radius: 50%;
+            background: var(--card-bg);
+            color: var(--text);
+            border: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+
+        .item-manager-controls {
+            display: grid;
+            gap: 0.75rem;
+        }
+
+        .add-item-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr auto;
+            gap: 0.75rem;
+            align-items: center;
+        }
+
+        .item-list-scroll {
+            overflow-y: auto;
+            padding: 20px;
+            display: grid;
+            gap: 10px;
+        }
+
+        .item-row {
+            display: grid;
+            grid-template-columns: 1fr 120px auto;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .item-count {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
+        }
+
+        @media (max-width: 600px) {
+            .item-modal-card {
+                margin: 20px auto;
+                max-height: 90vh;
+            }
+
+            .add-item-row,
+            .item-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
     </style>
 </head>
 <body>
@@ -500,19 +591,26 @@
     </div>
 
     <!-- Item Manager Modal -->
-    <div id="itemModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000;">
-        <div style="position: relative; background: var(--primary-light); margin: 50px auto; padding: 20px; border-radius: 16px; max-width: 600px; max-height: 80vh; overflow-y: auto;">
-            <h2 style="margin-bottom: 20px;">Manage Items</h2>
-            <div style="margin-bottom: 20px;">
-                <input type="text" id="newItemCode" placeholder="Product Code" style="margin-right: 10px;">
-                <input type="number" id="newItemWeight" placeholder="Weight" step="0.1" style="margin-right: 10px;">
-                <button onclick="addNewItem()" style="width: auto;">Add Item</button>
+    <div id="itemModal" class="modal-backdrop">
+        <div class="item-modal-card">
+            <div class="item-modal-header">
+                <div class="item-modal-title-row">
+                    <h2><i class="fas fa-edit"></i> Manage Items</h2>
+                    <button onclick="closeItemManager()" class="item-close-btn" aria-label="Close Manage Items">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="item-manager-controls">
+                    <input type="text" id="itemSearch" placeholder="Search product code..." autocomplete="off" oninput="updateItemList()">
+                    <div class="add-item-row">
+                        <input type="text" id="newItemCode" placeholder="Product Code">
+                        <input type="number" id="newItemWeight" placeholder="Weight" step="0.1">
+                        <button onclick="addNewItem()"><i class="fas fa-plus"></i> Add Item</button>
+                    </div>
+                    <div id="itemCount" class="item-count"></div>
+                </div>
             </div>
-            <div id="itemList" style="display: grid; gap: 10px;">
-            </div>
-            <button onclick="closeItemManager()" style="position: absolute; top: 10px; right: 10px; width: auto; background: none; color: var(--text);">
-                <i class="fas fa-times"></i>
-            </button>
+            <div id="itemList" class="item-list-scroll"></div>
         </div>
     </div>
 
@@ -1022,6 +1120,7 @@
             const modal = document.getElementById('itemModal');
             modal.style.display = 'block';
             updateItemList();
+            setTimeout(() => document.getElementById('itemSearch').focus(), 50);
         }
 
         function closeItemManager() {
@@ -1030,28 +1129,39 @@
 
         function updateItemList() {
             const itemList = document.getElementById('itemList');
+            const itemCount = document.getElementById('itemCount');
+            const searchTerm = (document.getElementById('itemSearch')?.value || '').trim().toLowerCase();
+            const sortedItems = Object.entries(weights)
+                .filter(([code]) => code.toLowerCase().includes(searchTerm))
+                .sort(([a], [b]) => a.localeCompare(b));
+
             itemList.innerHTML = '';
-            Object.entries(weights)
-                .sort(([a], [b]) => a.localeCompare(b))
-                .forEach(([code, weight]) => {
-                    const item = document.createElement('div');
-                    item.style.display = 'flex';
-                    item.style.gap = '10px';
-                    item.style.alignItems = 'center';
-                    item.innerHTML = `
-                        <input type="text" value="${code}" style="width: 120px;" readonly>
-                        <input type="number" value="${weight}" step="0.1" 
-                            onchange="updateItemWeight('${code}', this.value)" style="width: 100px;">
-                        <button onclick="deleteItem('${code}')" style="width: auto; background: var(--danger);">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    `;
-                    itemList.appendChild(item);
-                });
+            itemCount.textContent = searchTerm
+                ? `Showing ${sortedItems.length} of ${Object.keys(weights).length} items`
+                : `${Object.keys(weights).length} items saved`;
+
+            if (sortedItems.length === 0) {
+                itemList.innerHTML = '<div style="color: var(--text-secondary); text-align: center; padding: 1rem;">No matching product codes found.</div>';
+                return;
+            }
+
+            sortedItems.forEach(([code, weight]) => {
+                const item = document.createElement('div');
+                item.className = 'item-row';
+                item.innerHTML = `
+                    <input type="text" value="${code}" readonly>
+                    <input type="number" value="${weight}" step="0.1" 
+                        onchange="updateItemWeight('${code}', this.value)">
+                    <button onclick="deleteItem('${code}')" style="background: var(--danger);">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                `;
+                itemList.appendChild(item);
+            });
         }
 
         function addNewItem() {
-            const code = document.getElementById('newItemCode').value;
+            const code = document.getElementById('newItemCode').value.trim();
             const weight = parseFloat(document.getElementById('newItemWeight').value);
 
             if (!code || isNaN(weight)) {
@@ -1059,16 +1169,30 @@
                 return;
             }
 
+            if (weights[code] !== undefined && !confirm(`${code} already exists. Update its weight?`)) {
+                return;
+            }
+
             weights[code] = weight;
+            document.getElementById('itemSearch').value = code;
             updateItemList();
             updateSuggestions();
+            updateLookupSuggestions();
             
             document.getElementById('newItemCode').value = '';
             document.getElementById('newItemWeight').value = '';
         }
 
         function updateItemWeight(code, newWeight) {
-            weights[code] = parseFloat(newWeight);
+            const parsedWeight = parseFloat(newWeight);
+            if (isNaN(parsedWeight)) {
+                alert('Please enter a valid weight.');
+                updateItemList();
+                return;
+            }
+            weights[code] = parsedWeight;
+            updateSuggestions();
+            updateLookupSuggestions();
         }
 
         function deleteItem(code) {
@@ -1076,6 +1200,7 @@
                 delete weights[code];
                 updateItemList();
                 updateSuggestions();
+                updateLookupSuggestions();
             }
         }
 
