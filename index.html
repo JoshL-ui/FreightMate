@@ -1,0 +1,1017 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FreightMate</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0F172A">
+    <link rel="icon" type="image/png" href="icon-192.png">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root[data-theme="dark"] {
+            --primary: #0F172A;
+            --primary-light: #1E293B;
+            --accent: #3B82F6;
+            --theme-gradient: linear-gradient(-45deg, #0a2463, #1e3d59, #1b2430, #0a1f3f);
+            --accent-darker: #2563EB;
+            --accent-light: #60A5FA;
+            --success: #10B981;
+            --warning: #F59E0B;
+            --danger: #EF4444;
+            --text: #F8FAFC;
+            --text-secondary: #94A3B8;
+            --border: rgba(148, 163, 184, 0.1);
+            --card-bg: rgba(30, 41, 59, 0.8);
+            --hover-bg: rgba(51, 65, 85, 0.8);
+        }
+
+        :root[data-theme="light"] {
+            --primary: #F8FAFC;
+            --primary-light: #F1F5F9;
+            --accent: #2563EB;
+            --theme-gradient: linear-gradient(-45deg, #e6f3ff, #f0f7ff, #f5faff, #edf5ff);
+            --accent-darker: #1D4ED8;
+            --accent-light: #3B82F6;
+            --success: #059669;
+            --warning: #D97706;
+            --danger: #DC2626;
+            --text: #0F172A;
+            --text-secondary: #334155;
+            --border: rgba(71, 85, 105, 0.2);
+            --card-bg: rgba(255, 255, 255, 0.9);
+            --hover-bg: rgba(241, 245, 249, 0.9);
+        }
+
+        :root {
+            color-scheme: dark light;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        }
+
+        /* Removed animation keyframes */
+
+        body {
+            min-height: 100vh;
+            background: var(--primary);
+            /* Removed background image and animation */
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            background: var(--card-bg);
+            backdrop-filter: blur(8px);
+            padding: 3rem;
+            border-radius: 24px;
+            border: 1px solid var(--border);
+            box-shadow: 
+                0 25px 50px -12px rgba(0, 0, 0, 0.25),
+                0 0 0 1px rgba(255, 255, 255, 0.1);
+            position: relative; /* Added for watermark positioning */
+        }
+
+        h1 {
+            font-size: 2.75rem;
+            font-weight: 800;
+            text-align: center;
+            margin-bottom: 3rem;
+            background: linear-gradient(135deg, var(--accent-light) 0%, var(--accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.03em;
+            text-shadow: 0 8px 16px rgba(59, 130, 246, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+        }
+        h1 i {
+            font-size: 2.5rem;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        #order-form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin: 1rem 0 2rem 0;
+            padding: 2rem;
+            background: var(--primary-light);
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        label {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        input {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            background: var(--primary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            font-size: 0.875rem;
+            transition: all 0.2s ease;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+            background: var(--primary-light);
+        }
+
+        button {
+            width: 100%;
+            padding: 0.875rem;
+            border: none;
+            border-radius: 8px;
+            background: var(--accent);
+            color: white;
+            font-weight: 600;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        button:hover {
+            background: var(--accent-darker);
+            transform: translateY(-1px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        #order-list {
+            list-style: none;
+            margin: 2rem 0;
+            display: grid;
+            gap: 0.75rem;
+        }
+
+        #order-list li {
+            background: var(--primary-light);
+            padding: 1rem 1.25rem;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.875rem;
+            transition: all 0.2s ease;
+        }
+
+        #order-list li:hover {
+            background: var(--hover-bg);
+        }
+
+        .delete-btn {
+            width: 32px;
+            height: 32px;
+            padding: 0;
+            border-radius: 6px;
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .delete-btn:hover {
+            background: var(--danger);
+            color: white;
+        }
+
+        .total-weight {
+            text-align: center;
+            margin: 2rem auto;
+            padding: 1.5rem;
+            max-width: 800px;
+            width: 100%;
+            background: var(--primary-light);
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            color: var(--text);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .weight-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+
+        .weight-item {
+            padding: 0.75rem;
+            border-radius: 8px;
+            background: var(--card-bg);
+            transition: all 0.3s ease;
+        }
+        
+        .weight-item.highlighted {
+            border: 2px solid var(--accent);
+            background: var(--primary-light);
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .total-weight span {
+            color: var(--accent-light);
+            font-weight: 700;
+            font-size: 1.5rem;
+            display: block;
+            margin-top: 0.25rem;
+        }
+
+        /* Removed animation keyframes */
+
+        .container {
+            /* animation: fadeIn 0.3s ease-out; */
+        }
+
+        input, button {
+            transition: all 0.2s ease-out;
+        }
+
+        input:focus {
+            transform: translateY(-2px);
+        }
+
+        button:not(.delete-btn):hover {
+            transform: translateY(-2px) scale(1.02);
+        }
+
+        /* Removed animation from #order-list li */
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1.5rem;
+                margin: 1rem;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            #order-form {
+                padding: 1.5rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 1rem;
+                margin: 0.5rem;
+            }
+
+            h1 {
+                font-size: 1.75rem;
+            }
+        }
+
+        .theme-toggle {
+            position: absolute;
+            top: 2rem;
+            right: 3rem;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            color: var(--text);
+            font-size: 1.2rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+        }
+
+        .theme-toggle:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .highlighted {
+            color: var(--accent);
+            transition: color 0.3s ease;
+        }
+
+        body {
+            min-height: 100vh;
+            background: var(--theme-gradient);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            color: var(--text);
+            margin: 0;
+            padding: 2rem;
+            box-sizing: border-box;
+            overflow-x: hidden;
+            overflow-y: auto;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .container {
+            position: relative;
+            width: 100%;
+            max-width: 1200px;
+            min-height: calc(100vh - 4rem);
+            margin: 0 auto;
+            background: var(--card-bg);
+            backdrop-filter: blur(8px);
+            padding: 2rem;
+            border-radius: 24px;
+            border: 1px solid var(--border);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            display: flex;
+            flex-direction: column;
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+<body>
+    <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">
+        <i class="fas fa-sun"></i>
+    </button>
+    <div class="container">
+        <h1><i class="fas fa-truck-loading"></i> FreightMate</h1>
+        <form id="order-form">
+            <div class="form-group">
+                <label>
+                    <i class="fas fa-hashtag"></i>
+                    Product Code
+                </label>
+                <input type="text" id="product" name="product" required placeholder="Enter product code" list="product-codes" autocomplete="off">
+                <datalist id="product-codes">
+                </datalist>
+            </div>
+
+            <div class="form-group">
+                <label>
+                    <i class="fas fa-layer-group"></i>
+                    Quantity
+                </label>
+                <input type="number" id="quantity" name="quantity" required placeholder="Enter quantity">
+            </div>
+
+            <div class="form-group">
+                <label>
+                    <i class="fas fa-boxes-stacked"></i>
+                    Cartons
+                </label>
+                <input type="number" id="cartons" name="cartons" placeholder="Leave empty to use quantity">
+            </div>
+
+            <div class="form-group">
+                <button type="button" onclick="submitOrder()">
+                    <i class="fas fa-plus"></i> Add to Order
+                </button>
+            </div>
+        </form>
+
+        <ul id="order-list"></ul>
+        <div class="total-weight">
+            <div class="weight-grid">
+                <div class="weight-item">
+                    Total Weight: <span id="total-weight-simple">0.0</span> kg
+                </div>
+                <div class="weight-item">
+                    Total Cartons: <span id="total-cartons">0</span>
+                </div>
+                <div id="carton-weight" class="weight-item">
+                    Average Weight/Carton: <span id="avg-weight-carton">0.0</span> kg
+                </div>
+                <div id="pallet-weight" class="weight-item" style="display: none;">
+                    Average Weight/Pallet: <span id="avg-weight-pallet">0.0</span> kg
+                </div>
+            </div>
+        </div>
+        <button onclick="resetOrder()">
+            <i class="fas fa-refresh"></i> Reset Order
+        </button>
+        <button onclick="showItemManager()" style="margin-top: 1rem; background: var(--accent-light);">
+            <i class="fas fa-edit"></i> Manage Items
+        </button>
+    </div>
+
+    <!-- Item Manager Modal -->
+    <div id="itemModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000;">
+        <div style="position: relative; background: var(--primary-light); margin: 50px auto; padding: 20px; border-radius: 16px; max-width: 600px; max-height: 80vh; overflow-y: auto;">
+            <h2 style="margin-bottom: 20px;">Manage Items</h2>
+            <div style="margin-bottom: 20px;">
+                <input type="text" id="newItemCode" placeholder="Product Code" style="margin-right: 10px;">
+                <input type="number" id="newItemWeight" placeholder="Weight" step="0.1" style="margin-right: 10px;">
+                <button onclick="addNewItem()" style="width: auto;">Add Item</button>
+            </div>
+            <div id="itemList" style="display: grid; gap: 10px;">
+            </div>
+            <button onclick="closeItemManager()" style="position: absolute; top: 10px; right: 10px; width: auto; background: none; color: var(--text);">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // PWA registration
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js')
+                .then(reg => console.log('Service Worker registered'))
+                .catch(err => console.log('Service Worker not registered', err));
+        }
+
+        // Theme initialization
+        document.documentElement.setAttribute('data-theme', localStorage.getItem('theme') || 'dark');
+        updateThemeIcon();
+
+        let totalWeight = 0;
+        let totalCartons = 0;
+        let totalPallets = 0; // Added to track total pallets
+
+        const weights = {
+            "300320": 12.1,
+            "370254": 5.1,
+            "500135": 12,
+            "300204": 3.9,
+            "300205": 5.6,
+            "500602": 5.5,
+            "500180": 5.2,
+            "801972": 2.3,
+            "801922": 5.3,
+            "338111": 4.1,
+            "569007": 10.6,
+            "300104": 5.4,
+            "300154": 6.3,
+            "300105": 6.3,
+            "300155": 6.3,
+            "300108": 7.2,
+            "300158": 7.2,
+            "800403": 1.9,
+            "250101": 1.8,
+            "370135": 11.9,
+            "150002": 1.5,
+            "800305": 5.2,
+            "800409": 10.9,
+            "500064": 8.1,
+            "500280": 13.3,
+            "801901": 4.9,
+            "226025": 6.8,
+            "561003": 6.4,
+            "561004": 6.4,
+            "370200": 9.3,
+            "370045": 8,
+            "150201": 1.5,
+            "291000": 2.8,
+            "500603": 3,
+            "800405": 3.3,
+            "300032": 2.5,
+            "801959": 18.5,
+            "800407": 4.9,
+            "500607": 1.8,
+            "150021": 5.4,
+            "515032": 2.3,
+            "802498": 3.3,
+            "500254": 10.6,
+            "770301": 0.8,
+            "569001": 9.5,
+            "569000": 13.5,
+            "569010": 13.2,
+            "500025": 6.5,
+            "500022": 9,
+            "151601": 3.8,
+            "150001": 1.1,
+            "800302": 2,
+            "800404": 2.9,
+            "801942": 5.3,
+            "801902": 6.5,
+            "170516": 1.7,
+            "292100": 4.6,
+            "292110": 3.6,
+            "292130": 3,
+            "140050": 6.8,
+            "500310": 6.3,
+            "801931": 13.8,
+            "801956": 4,
+            "802495": 3.1,
+            "801591": 5.8,
+            "800306": 6.2,
+            "800304": 3.9,
+            "170506": 1.7,
+            "562000": 12.1,
+            "801929": 10.2,
+            "802497": 7.4,
+            "803040": 4.8,
+            "801949": 10.8,
+            "250102": 1.1,
+            "270301": 7.3,
+            "561008": 10.9,
+            "801933": 3,
+            "800303": 0.8,
+            "270212": 3.5,
+            "562004": 5.8,
+            "801967": 6.2,
+            "151701": 5,
+            "801955": 5.2,
+            "801940": 4,
+            "500220": 4.8,
+            "801974": 5.9,
+            "561007": 13.3,
+            "270231": 18.3,
+            "338112": 5.1,
+            "803039": 16.4,
+            "803032": 17.2,
+            "803033": 5.7,
+            "800301": 1.4,
+            "300060": 15.7,
+            "569025": 8.7,
+            "801963": 2.6,
+            "515020": 1,
+            "561001": 7.6,
+            "500104": 6.1,
+            "562013": 8.9,
+            "561014": 10.7,
+            "562008": 10,
+            "515031": 1.7,
+            "561002": 14.8,
+            "561030": 11.7,
+            "151706": 5,
+            "561009": 10.4,
+            "151702": 5,
+            "150022": 5.2,
+            "561000": 13,
+            "500078": 3.1,
+            "803038": 6.6,
+            "801207": 5.9,
+            "800307": 7.8,
+            "803964": 11.7,
+            "562019": 3.9,
+            "300050": 4.5,
+            "500502": 5.3,
+            "300022": 1.9,
+            "270002": 1.4,
+            "250114": 1.2,
+            "250111": 1.2,
+            "237131": 1,
+            "225103": 5.9,
+            "170601": 1,
+            "237132": 1,
+            "250104": 1.1,
+            "250112": 1.2,
+            "250021": 2.3,
+            "229002": 1,
+            "170602": 1,
+            "270005.1": 14.7,
+            "270015": 11.5,
+            "300012": 2.2,
+            "229001": 1,
+            "500101": 3.4,
+            "250106": 1.1,
+            "170515": 2.1,
+            "237136": 1,
+            "270415": 2.9,
+            "250302": 1.5,
+            "300070": 10.5,
+            "515023": 4.1,
+            "569005": 10.6,
+            "170701": 1.8,
+            "00011": 1.9,
+            "568004": 7,
+            "500501": 5.3,
+            "567006": 7,
+            "170504": 1.7,
+            "290002": 1.9,
+            "150202": 1.4,
+            "370075": 4.8,
+            "229007": 1,
+            "515024": 2.3,
+            "140055": 0.3,
+            "801945": 12.7,
+            "567009": 9.7,
+            "802093": 5.9,
+            "800406": 2,
+            "801964": 3.2,
+            "568008": 12.7,
+            "569019": 9.2,
+            "515033": 3.7,
+            "501001": 11.1,
+            "500119": 5.3,
+            "500105": 6.4,
+            "500201": 3.8,
+            "500102": 4.3,
+            "500401": 3.7,
+            "270401": 6.2,
+            "270007": 12.8,
+            "500512": 5.3,
+            "500515": 8.6,
+            "801939": 7.7,
+            "370095": 8.3,
+            "44100": 0.1,
+            "569021": 5.9,
+            "568003": 7.3,
+            "804650": 0.3,
+            "171604": 1.7,
+            "500600": 4,
+            "801905": 10.3,
+            "151704": 5,
+            "801904": 8.4,
+            "140150": 0.9,
+            "801950": 9.9,
+            "801944": 6.8,
+            "801943": 5.9,
+            "801981": 12.4,
+            "803031": 9.2,
+            "801957": 13.6,
+            "801928": 11.1,
+            "802094": 7,
+            "500069": 8.4,
+            "801593": 8.7,
+            "500067": 9.5,
+            "500112": 3.3,
+            "500055": 9.8,
+            "170604": 1.7,
+            "515021": 2.3,
+            "270600": 5.7,
+            "292050": 5.4,
+            "250151": 4.4,
+            "250108": 1.1,
+            "237133": 1,
+            "229003": 1,
+            "801992": 0.3,
+            "250152": 3.3,
+            "250116": 1.4,
+            "370001": 5.8,
+            "569003": 9.4,
+            "562009": 9.4,
+            "803960": 15.4,
+            "150006": 1.1,
+            "801966": 5,
+            "225102": 6.2,
+            "170505": 1.7,
+            "801980": 8.9,
+            "500114": 7.4,
+            "250312": 4.5,
+            "170622": 1,
+            "270251": 1.7,
+            "292052": 5.4,
+            "250402": 2.6,
+            "500301": 2.7,
+            "229006": 1,
+            "270101": 2.3,
+            "800402": 0.3,
+            "561015": 2.8,
+            "561012": 3.8,
+            "801642": 5.3,
+            "370025": 6.1,
+            "801620": 2.5,
+            "569014": 11.6,
+            "211414": 3.1,
+            "500632": 10.7,
+            "270213": 2.8,
+            "500100": 6.8,
+            "270305": 3.5,
+            "800308": 9.8,
+            "802084": 5.5,
+            "804092": 0.3,
+            "270310": 5.1,
+            "801962": 3.5,
+            "801941": 4.8,
+            "802095": 0.6,
+            "569015": 10.4,
+            "562014": 10,
+            "801977": 2.1,
+            "801595": 6.7,
+            "290001": 10.1,
+            "801930": 7.9,
+            "588690": 0.2,
+            "270211": 3.5,
+            "270215": 5.2,
+            "803030": 8.3,
+            "270220": 4.7,
+            "569012": 9.9,
+            "515022": 2.9,
+            "567012": 8.3,
+            "151602": 4,
+            "801990": 0.3,
+            "561031": 11.6,
+            "804732": 0.3,
+            "803041": 8.4,
+            "500110": 8,
+            "229020": 1.4,
+            "270451": 4.8,
+            "804701": 0.9,
+            "211666": 3.4,
+            "804734": 0.3,
+            "151604": 4.5,
+            "561005": 15.1,
+            "569018": 10.2,
+            "562001": 6.9,
+            "216-2095-3": 11.4,
+            "PLT": 25
+        };
+
+        // Setup product code suggestions
+        const productDatalist = document.getElementById('product-codes');
+        Object.keys(weights).forEach(code => {
+            const option = document.createElement('option');
+            option.value = code;
+            productDatalist.appendChild(option);
+        });
+
+        // Show suggestions on focus and filter as user types
+        const productInput = document.getElementById('product');
+
+        function updateSuggestions(input = '') {
+            const searchTerm = input.toLowerCase();
+            const filteredCodes = Object.keys(weights)
+                .filter(code => code.toLowerCase().includes(searchTerm))
+                                .sort()
+                .slice(0, 10);
+
+            productDatalist.innerHTML = '';
+            filteredCodes.forEach(code => {
+                const option = document.createElement('option');
+                option.value = code;
+                productDatalist.appendChild(option);
+            });
+        }
+
+        productInput.addEventListener('focus', () => updateSuggestions());
+        productInput.addEventListener('input', (e) => {
+            updateSuggestions(e.target.value);
+            if (weights[e.target.value]) {
+                document.getElementById('quantity').focus();
+            }
+        });
+
+        // Handle selection from datalist
+        productInput.addEventListener('change', (e) => {
+            if (weights[e.target.value]) {
+                updateSuggestions('');
+                document.getElementById('quantity').focus();
+            }
+        });
+
+        // Add Enter key submission
+        document.getElementById('quantity').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                const cartonsInput = document.getElementById('cartons');
+                if (cartonsInput.value.trim() === '') {
+                    submitOrder();
+                } else {
+                    cartonsInput.focus();
+                }
+            }
+        });
+
+        document.getElementById('cartons').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                submitOrder();
+            }
+        });
+
+        function highlightValue(element, value) {
+            if (parseFloat(value) > 0) {
+                element.classList.add('highlighted');
+            } else {
+                element.classList.remove('highlighted');
+            }
+        }
+
+        function toggleTheme() {
+            const root = document.documentElement;
+            const currentTheme = root.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+
+            root.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateThemeIcon();
+        }
+
+        function updateThemeIcon() {
+            const button = document.querySelector('.theme-toggle i');
+            const theme = document.documentElement.getAttribute('data-theme');
+            button.className = theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+        }
+
+
+        function submitOrder() {
+
+            const product = document.getElementById('product').value;
+            const quantity = parseFloat(document.getElementById('quantity').value);
+            const cartonsInput = document.getElementById('cartons');
+            const cartons = cartonsInput.value ? parseFloat(cartonsInput.value) : quantity;
+            let pallets = 0; // Added to track pallets for this item
+
+            if (product === "PLT") {
+                pallets = quantity;
+            }
+
+
+            if (weights[product] && quantity > 0) {
+                const itemWeight = weights[product] * quantity;
+                totalWeight += itemWeight;
+                if (product !== "PLT") {
+                    totalCartons += cartons;
+                }
+                totalPallets += pallets; // Add pallets to the total
+
+                let weightDisplay = `${itemWeight.toFixed(2)} kg`;
+                if (cartons > 0) {
+                    const weightPerCarton = itemWeight / cartons;
+                    weightDisplay += ` (${weightPerCarton.toFixed(2)} kg/carton)`;
+                }
+
+                const listItem = document.createElement('li');
+                listItem.innerHTML = `
+                    <span>${product} - Qty: ${quantity}, ${weightDisplay}</span>
+                    <button class="delete-btn" onclick="removeItem(this.parentElement, ${itemWeight}, ${cartons}, ${pallets})">
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
+                document.getElementById('order-list').appendChild(listItem);
+
+                document.getElementById('total-weight-simple').textContent = totalWeight.toFixed(2);
+                document.getElementById('total-cartons').textContent = totalCartons;
+                
+                // Always calculate pallet average if there are any PLT items
+                const hasPallets = totalPallets > 0;
+                const avgCarton = !hasPallets && totalCartons > 0 ? (totalWeight / totalCartons).toFixed(2) : '0.0';
+                const avgPallet = hasPallets ? (totalWeight / totalPallets).toFixed(2) : '0.0';
+                
+                const cartonEl = document.getElementById('avg-weight-carton');
+                const palletEl = document.getElementById('avg-weight-pallet');
+                const cartonItem = document.getElementById('carton-weight');
+                const palletItem = document.getElementById('pallet-weight');
+                
+                cartonEl.textContent = avgCarton;
+                palletEl.textContent = avgPallet;
+
+                if (hasPallets) {
+                    cartonItem.style.display = 'none';
+                    palletItem.style.display = 'block';
+                    palletItem.classList.add('highlighted');
+                    cartonItem.classList.remove('highlighted');
+                } else {
+                    palletItem.style.display = 'none';
+                    cartonItem.style.display = 'block';
+                    cartonItem.classList.add('highlighted');
+                    palletItem.classList.remove('highlighted');
+                }
+
+                // Clear form fields
+                document.getElementById('product').value = '';
+                document.getElementById('quantity').value = '';
+                document.getElementById('cartons').value = '';
+                document.getElementById('product').focus();
+            } else {
+                alert('Please enter a valid product code and quantity.');
+            }
+        }
+
+        function resetOrder() {
+            if (confirm('Are you sure you want to reset the order?')) {
+                totalWeight = 0;
+                totalCartons = 0;
+                totalPallets = 0; // Reset total pallets
+                document.getElementById('order-list').innerHTML = '';
+                document.getElementById('total-weight-simple').textContent = '0.0';
+                document.getElementById('total-cartons').textContent = '0';
+                document.getElementById('avg-weight-carton').textContent = '0.0';
+                document.getElementById('avg-weight-pallet').textContent = '0.0';
+                
+                // Reset highlighting and display
+                const cartonItem = document.getElementById('carton-weight');
+                const palletItem = document.getElementById('pallet-weight');
+                cartonItem.style.display = 'block';
+                palletItem.style.display = 'none';
+                cartonItem.classList.remove('highlighted');
+                palletItem.classList.remove('highlighted');
+            }
+        }
+
+        function showItemManager() {
+            const modal = document.getElementById('itemModal');
+            modal.style.display = 'block';
+            updateItemList();
+        }
+
+        function closeItemManager() {
+            document.getElementById('itemModal').style.display = 'none';
+        }
+
+        function updateItemList() {
+            const itemList = document.getElementById('itemList');
+            itemList.innerHTML = '';
+            Object.entries(weights)
+                .sort(([a], [b]) => a.localeCompare(b))
+                .forEach(([code, weight]) => {
+                    const item = document.createElement('div');
+                    item.style.display = 'flex';
+                    item.style.gap = '10px';
+                    item.style.alignItems = 'center';
+                    item.innerHTML = `
+                        <input type="text" value="${code}" style="width: 120px;" readonly>
+                        <input type="number" value="${weight}" step="0.1" 
+                            onchange="updateItemWeight('${code}', this.value)" style="width: 100px;">
+                        <button onclick="deleteItem('${code}')" style="width: auto; background: var(--danger);">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    `;
+                    itemList.appendChild(item);
+                });
+        }
+
+        function addNewItem() {
+            const code = document.getElementById('newItemCode').value;
+            const weight = parseFloat(document.getElementById('newItemWeight').value);
+
+            if (!code || isNaN(weight)) {
+                alert('Please enter both code and weight');
+                return;
+            }
+
+            weights[code] = weight;
+            updateItemList();
+            updateSuggestions();
+            
+            document.getElementById('newItemCode').value = '';
+            document.getElementById('newItemWeight').value = '';
+        }
+
+        function updateItemWeight(code, newWeight) {
+            weights[code] = parseFloat(newWeight);
+        }
+
+        function deleteItem(code) {
+            if (confirm(`Delete item ${code}?`)) {
+                delete weights[code];
+                updateItemList();
+                updateSuggestions();
+            }
+        }
+
+        function removeItem(element, weight, cartons, pallets) { // Updated to handle pallets
+            if (confirm('Remove this item?')) {
+                totalWeight -= weight;
+                const productCode = element.querySelector('span').textContent.split(' ')[0];
+                if (productCode !== "PLT") {
+                    totalCartons -= cartons;
+                }
+                totalPallets -= pallets; // Subtract pallets from total
+                element.remove();
+
+                document.getElementById('total-weight-simple').textContent = totalWeight.toFixed(2);
+                document.getElementById('total-cartons').textContent = totalCartons;
+                document.getElementById('avg-weight-carton').textContent = 
+                    totalCartons > 0 ? (totalWeight / totalCartons).toFixed(2) : '0.0';
+                document.getElementById('avg-weight-pallet').textContent = 
+                    totalPallets > 0 ? (totalWeight / totalPallets).toFixed(2) : '0.0';
+            }
+        }
+    </script>
+</body>
+</html>
