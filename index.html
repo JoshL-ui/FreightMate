@@ -496,11 +496,16 @@
         }
 
         .item-row {
-            display: grid;
-            grid-template-columns: 1fr 120px auto;
-            gap: 10px;
-            align-items: center;
-        }
+
+    display: grid;
+
+    grid-template-columns: 1fr 120px auto auto;
+
+    gap: 10px;
+
+    align-items: center;
+
+}
 
         .item-count {
             color: var(--text-secondary);
@@ -934,6 +939,152 @@
             "PLT": 25
         };
 
+const defaultWeights = { ...weights };
+
+const ITEM_STORAGE_KEY = 'freightmate-item-data-v1';
+
+function loadSavedItems() {
+
+    try {
+
+        const savedData = localStorage.getItem(ITEM_STORAGE_KEY);
+
+        if (!savedData) return;
+
+        const data = JSON.parse(savedData);
+
+        if (Array.isArray(data.deleted)) {
+
+            data.deleted.forEach(code => delete weights[code]);
+
+        }
+
+        if (data.overrides && typeof data.overrides === 'object') {
+
+            Object.entries(data.overrides).forEach(([code, weight]) => {
+
+                if (typeof weight === 'number' && !isNaN(weight)) {
+
+                    weights[code] = weight;
+
+                }
+
+            });
+
+        }
+
+        if (data.additions && typeof data.additions === 'object') {
+
+            Object.entries(data.additions).forEach(([code, weight]) => {
+
+                if (typeof weight === 'number' && !isNaN(weight)) {
+
+                    weights[code] = weight;
+
+                }
+
+            });
+
+        }
+
+    } catch (error) {
+
+        console.error('Could not load saved item data:', error);
+
+    }
+
+}
+
+function saveItemData() {
+
+    try {
+
+        const overrides = {};
+
+        const additions = {};
+
+        const deleted = [];
+
+        Object.entries(weights).forEach(([code, weight]) => {
+
+            if (defaultWeights[code] === undefined) {
+
+                additions[code] = weight;
+
+            } else if (defaultWeights[code] !== weight) {
+
+                overrides[code] = weight;
+
+            }
+
+        });
+
+        Object.keys(defaultWeights).forEach(code => {
+
+            if (weights[code] === undefined) {
+
+                deleted.push(code);
+
+            }
+
+        });
+
+        localStorage.setItem(
+
+            ITEM_STORAGE_KEY,
+
+            JSON.stringify({ overrides, additions, deleted })
+
+        );
+
+    } catch (error) {
+
+        console.error('Could not save item data:', error);
+
+    }
+
+}
+
+function resetItemToDefault(code) {
+
+    if (defaultWeights[code] === undefined) {
+
+        if (confirm(`Remove newly added item ${code}?`)) {
+
+            delete weights[code];
+
+            saveItemData();
+
+            updateItemList();
+
+            updateSuggestions();
+
+            updateLookupSuggestions();
+
+        }
+
+        return;
+
+    }
+
+    if (confirm(`Reset ${code} to its default weight of ${defaultWeights[code]} kg?`)) {
+
+        weights[code] = defaultWeights[code];
+
+        saveItemData();
+
+        updateItemList();
+
+        updateSuggestions();
+
+        updateLookupSuggestions();
+
+    }
+
+}
+
+loadSavedItems();
+
         // Setup product code suggestions
         const productDatalist = document.getElementById('product-codes');
         Object.keys(weights).forEach(code => {
@@ -1149,13 +1300,30 @@
                 const item = document.createElement('div');
                 item.className = 'item-row';
                 item.innerHTML = `
-                    <input type="text" value="${code}" readonly>
-                    <input type="number" value="${weight}" step="0.1" 
-                        onchange="updateItemWeight('${code}', this.value)">
-                    <button onclick="deleteItem('${code}')" style="background: var(--danger);">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                `;
+
+    <input type="text" value="${code}" readonly>
+
+    <input type="number" value="${weight}" step="0.1" 
+
+        onchange="updateItemWeight('${code}', this.value)">
+
+    <button onclick="resetItemToDefault('${code}')"
+
+        style="background: var(--warning);"
+
+        title="${defaultWeights[code] !== undefined ? 'Reset to default weight' : 'Remove newly added item'}">
+
+        <i class="fas fa-rotate-left"></i>
+
+    </button>
+
+    <button onclick="deleteItem('${code}')" style="background: var(--danger);">
+
+        <i class="fas fa-trash"></i>
+
+    </button>
+
+`;
                 itemList.appendChild(item);
             });
         }
@@ -1173,11 +1341,17 @@
                 return;
             }
 
-            weights[code] = weight;
-            document.getElementById('itemSearch').value = code;
-            updateItemList();
-            updateSuggestions();
-            updateLookupSuggestions();
+        weights[code] = weight;
+
+saveItemData();
+
+document.getElementById('itemSearch').value = code;
+
+updateItemList();
+
+updateSuggestions();
+
+updateLookupSuggestions();
             
             document.getElementById('newItemCode').value = '';
             document.getElementById('newItemWeight').value = '';
@@ -1191,16 +1365,25 @@
                 return;
             }
             weights[code] = parsedWeight;
-            updateSuggestions();
-            updateLookupSuggestions();
+
+saveItemData();
+
+updateSuggestions();
+
+updateLookupSuggestions();
         }
 
         function deleteItem(code) {
             if (confirm(`Delete item ${code}?`)) {
-                delete weights[code];
-                updateItemList();
-                updateSuggestions();
-                updateLookupSuggestions();
+           delete weights[code];
+
+saveItemData();
+
+updateItemList();
+
+updateSuggestions();
+
+updateLookupSuggestions();
             }
         }
 
